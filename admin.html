@@ -253,7 +253,7 @@
           <label for="url">网页链接</label>
           <input type="url" id="url" placeholder="https://..." required>
           <label for="badge">标签（可选）</label>
-          <input type="text" id="badge" placeholder="例如：⏱ 约 5 分钟 · 需联网" value="🌐 需联网">
+          <input type="text" id="badge" placeholder="例如：⏱ 约 5 分钟" value="">
           <label for="description">简介</label>
           <textarea id="description" placeholder="一句话介绍这个游戏"></textarea>
           <div class="btn-group">
@@ -378,7 +378,7 @@
         editId.value = "";
         gameForm.reset();
         document.getElementById("emoji").value = "🎮";
-        document.getElementById("badge").value = "🌐 需联网";
+        document.getElementById("badge").value = "";
         formTitle.textContent = "➕ 添加新链接";
         cancelEditBtn.classList.add("hidden");
       }
@@ -430,7 +430,7 @@
           emoji: document.getElementById("emoji").value.trim() || "🎮",
           title: document.getElementById("title").value.trim(),
           url: document.getElementById("url").value.trim(),
-          badge: document.getElementById("badge").value.trim() || "🌐 需联网",
+          badge: document.getElementById("badge").value.trim(),
           description: document.getElementById("description").value.trim(),
         };
 
