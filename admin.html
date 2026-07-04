@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理后台 · 小小学习乐园</title>
+  <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #f1f5f9;
+      color: #334155;
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+    }
+
+    h1 {
+      font-family: "ZCOOL KuaiLe", cursive;
+      font-size: 1.8rem;
+      color: #e74c3c;
+      margin-bottom: 0.25rem;
+    }
+
+    .subtitle { color: #64748b; margin-bottom: 1.5rem; font-size: 0.95rem; }
+
+    .panel {
+      background: #fff;
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      margin-bottom: 1.25rem;
+    }
+
+    .panel h2 {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      color: #1e293b;
+    }
+
+    .login-box { max-width: 360px; margin: 4rem auto; }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 0.35rem;
+      color: #475569;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      font-family: inherit;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #60a5fa;
+    }
+
+    textarea { min-height: 72px; resize: vertical; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      padding: 0.65rem 1.1rem;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: filter 0.2s;
+    }
+    .btn:hover { filter: brightness(1.05); }
+    .btn-primary { background: #3b82f6; color: #fff; }
+    .btn-success { background: #10b981; color: #fff; }
+    .btn-danger { background: #ef4444; color: #fff; }
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+    .btn-ghost { background: transparent; color: #64748b; border: 1px solid #cbd5e1; }
+
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .top-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .game-list { list-style: none; }
+
+    .game-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 1rem;
+      border: 2px solid #f1f5f9;
+      border-radius: 12px;
+      margin-bottom: 0.75rem;
+      background: #fafbfc;
+    }
+
+    .game-item-emoji { font-size: 2rem; line-height: 1; }
+
+    .game-item-body { flex: 1; min-width: 0; }
+
+    .game-item-title {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .game-item-meta {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-bottom: 0.35rem;
+    }
+
+    .game-item-desc {
+      font-size: 0.85rem;
+      color: #64748b;
+      word-break: break-all;
+    }
+
+    .game-item-url {
+      font-size: 0.75rem;
+      color: #3b82f6;
+      word-break: break-all;
+      margin-top: 0.25rem;
+    }
+
+    .game-item-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      flex-shrink: 0;
+    }
+
+    .game-item-actions .btn { padding: 0.4rem 0.65rem; font-size: 0.8rem; }
+
+    .subject-label {
+      display: inline-block;
+      font-size: 0.75rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      margin-bottom: 0.35rem;
+    }
+    .subject-label.english { background: #e8faf8; color: #0d9488; }
+    .subject-label.math { background: #f3eeff; color: #6d28d9; }
+    .subject-label.chinese { background: #fff0eb; color: #c05621; }
+
+    .hidden { display: none !important; }
+
+    .msg {
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    .msg-success { background: #d1fae5; color: #065f46; }
+    .msg-error { background: #fee2e2; color: #991b1b; }
+
+    .hint { font-size: 0.8rem; color: #94a3b8; margin-top: -0.5rem; margin-bottom: 1rem; }
+
+    .hint code {
+      background: #f1f5f9;
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+
+    @media (max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; }
+      .game-item { flex-direction: column; }
+      .game-item-actions { flex-direction: row; flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- 登录 -->
+    <div id="loginView" class="panel login-box">
+      <h1>🔐 管理后台</h1>
+      <p class="subtitle">请输入管理密码（默认：1234）</p>
+      <div id="loginMsg"></div>
+      <label for="loginPassword">管理密码</label>
+      <input type="password" id="loginPassword" placeholder="请输入密码" autocomplete="current-password">
+      <button class="btn btn-primary" type="button" id="loginBtn" style="width:100%">登录</button>
+      <p class="hint" style="margin-top:1rem"><a href="index.html">← 返回首页</a></p>
+    </div>
+
+    <!-- 主界面 -->
+    <div id="adminView" class="hidden">
+      <div class="top-actions">
+        <div>
+          <h1>⚙️ 链接管理</h1>
+          <p class="subtitle">添加、编辑学习游戏链接，保存后首页即时生效</p>
+        </div>
+        <div class="btn-group">
+          <a class="btn btn-ghost" href="index.html">查看首页</a>
+          <button class="btn btn-secondary" type="button" id="logoutBtn">退出</button>
+        </div>
+      </div>
+
+      <div id="adminMsg"></div>
+
+      <!-- 添加/编辑表单 -->
+      <div class="panel">
+        <h2 id="formTitle">➕ 添加新链接</h2>
+        <form id="gameForm">
+          <input type="hidden" id="editId" value="">
+          <div class="form-row">
+            <div>
+              <label for="subject">科目</label>
+              <select id="subject" required>
+                <option value="english">🌍 英语乐园</option>
+                <option value="math">🔢 数学乐园</option>
+                <option value="chinese">📖 语文乐园</option>
+              </select>
+            </div>
+            <div>
+              <label for="emoji">图标（emoji）</label>
+              <input type="text" id="emoji" placeholder="例如 🎮" maxlength="4" value="🎮">
+            </div>
+          </div>
+          <label for="title">游戏名称</label>
+          <input type="text" id="title" placeholder="例如：自然拼读打卡游戏" required>
+          <label for="url">网页链接</label>
+          <input type="url" id="url" placeholder="https://..." required>
+          <label for="badge">标签（可选）</label>
+          <input type="text" id="badge" placeholder="例如：⏱ 约 5 分钟 · 需联网" value="🌐 需联网">
+          <label for="description">简介</label>
+          <textarea id="description" placeholder="一句话介绍这个游戏"></textarea>
+          <div class="btn-group">
+            <button class="btn btn-success" type="submit" id="submitBtn">保存</button>
+            <button class="btn btn-secondary hidden" type="button" id="cancelEditBtn">取消编辑</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- 链接列表 -->
+      <div class="panel">
+        <h2>📋 已有链接（<span id="gameCount">0</span> 个）</h2>
+        <ul class="game-list" id="gameList"></ul>
+        <div class="btn-group">
+          <button class="btn btn-secondary" type="button" id="exportBtn">导出备份</button>
+          <label class="btn btn-secondary" style="cursor:pointer">
+            导入备份
+            <input type="file" id="importFile" accept=".json" style="display:none">
+          </label>
+          <button class="btn btn-danger" type="button" id="resetBtn">恢复默认</button>
+        </div>
+        <p class="hint">数据保存在服务器 <code>games.json</code>，所有访问者同步生效。换机备份请用导出/导入。</p>
+      </div>
+
+      <!-- 修改密码 -->
+      <div class="panel">
+        <h2>🔑 修改管理密码</h2>
+        <label for="newPassword">新密码</label>
+        <input type="password" id="newPassword" placeholder="至少 4 位">
+        <button class="btn btn-primary" type="button" id="changePasswordBtn">更新密码</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="games-data.js"></script>
+  <script>
+    (function () {
+      const SESSION_KEY = "littleLearnerAdminSession";
+
+      const loginView = document.getElementById("loginView");
+      const adminView = document.getElementById("adminView");
+      const loginPassword = document.getElementById("loginPassword");
+      const loginBtn = document.getElementById("loginBtn");
+      const loginMsg = document.getElementById("loginMsg");
+      const adminMsg = document.getElementById("adminMsg");
+      const gameForm = document.getElementById("gameForm");
+      const gameList = document.getElementById("gameList");
+      const gameCount = document.getElementById("gameCount");
+      const formTitle = document.getElementById("formTitle");
+      const editId = document.getElementById("editId");
+      const cancelEditBtn = document.getElementById("cancelEditBtn");
+
+      let games = [];
+
+      function showMsg(el, text, type) {
+        el.innerHTML = '<div class="msg msg-' + type + '">' + GamesData.escapeHtml(text) + '</div>';
+        setTimeout(function () { el.innerHTML = ""; }, 3000);
+      }
+
+      function isLoggedIn() {
+        return sessionStorage.getItem(SESSION_KEY) === "1" && GamesData.getStoredPassword();
+      }
+
+      async function persistGames(message) {
+        await GamesData.saveGames(games);
+        await refreshList();
+        if (message) showMsg(adminMsg, message, "success");
+      }
+
+      function showAdmin() {
+        loginView.classList.add("hidden");
+        adminView.classList.remove("hidden");
+        refreshList();
+      }
+
+      function showLogin() {
+        sessionStorage.removeItem(SESSION_KEY);
+        GamesData.setStoredPassword("");
+        adminView.classList.add("hidden");
+        loginView.classList.remove("hidden");
+        loginPassword.value = "";
+      }
+
+      async function refreshList() {
+        try {
+          games = await GamesData.loadGames();
+        } catch (err) {
+          showMsg(adminMsg, "加载失败：" + err.message, "error");
+          games = [];
+        }
+        gameCount.textContent = games.length;
+
+        if (!games.length) {
+          gameList.innerHTML = '<li style="color:#94a3b8;padding:1rem">暂无链接，请在上方添加</li>';
+          return;
+        }
+
+        gameList.innerHTML = games.map(function (game, index) {
+          const subject = GamesData.getSubject(game.subject);
+          return (
+            '<li class="game-item">' +
+              '<div class="game-item-emoji">' + GamesData.escapeHtml(game.emoji || "🎮") + '</div>' +
+              '<div class="game-item-body">' +
+                '<span class="subject-label ' + game.subject + '">' + (subject ? subject.name : game.subject) + '</span>' +
+                '<div class="game-item-title">' + GamesData.escapeHtml(game.title) + '</div>' +
+                '<div class="game-item-meta">' + GamesData.escapeHtml(game.badge || "") + '</div>' +
+                '<div class="game-item-desc">' + GamesData.escapeHtml(game.description || "") + '</div>' +
+                '<div class="game-item-url">' + GamesData.escapeHtml(game.url) + '</div>' +
+              '</div>' +
+              '<div class="game-item-actions">' +
+                '<button class="btn btn-secondary" type="button" data-action="up" data-index="' + index + '"' + (index === 0 ? ' disabled' : '') + '>↑</button>' +
+                '<button class="btn btn-secondary" type="button" data-action="down" data-index="' + index + '"' + (index === games.length - 1 ? ' disabled' : '') + '>↓</button>' +
+                '<button class="btn btn-primary" type="button" data-action="edit" data-id="' + GamesData.escapeHtml(game.id) + '">编辑</button>' +
+                '<button class="btn btn-danger" type="button" data-action="delete" data-id="' + GamesData.escapeHtml(game.id) + '">删除</button>' +
+              '</div>' +
+            '</li>'
+          );
+        }).join("");
+      }
+
+      function resetForm() {
+        editId.value = "";
+        gameForm.reset();
+        document.getElementById("emoji").value = "🎮";
+        document.getElementById("badge").value = "🌐 需联网";
+        formTitle.textContent = "➕ 添加新链接";
+        cancelEditBtn.classList.add("hidden");
+      }
+
+      function startEdit(id) {
+        const game = games.find(function (g) { return g.id === id; });
+        if (!game) return;
+        editId.value = game.id;
+        document.getElementById("subject").value = game.subject;
+        document.getElementById("emoji").value = game.emoji || "🎮";
+        document.getElementById("title").value = game.title;
+        document.getElementById("url").value = game.url;
+        document.getElementById("badge").value = game.badge || "";
+        document.getElementById("description").value = game.description || "";
+        formTitle.textContent = "✏️ 编辑链接";
+        cancelEditBtn.classList.remove("hidden");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      loginBtn.addEventListener("click", async function () {
+        loginBtn.disabled = true;
+        try {
+          const ok = await GamesData.authPassword(loginPassword.value);
+          if (ok) {
+            GamesData.setStoredPassword(loginPassword.value);
+            sessionStorage.setItem(SESSION_KEY, "1");
+            showAdmin();
+          } else {
+            showMsg(loginMsg, "密码错误，请重试", "error");
+          }
+        } catch (err) {
+          showMsg(loginMsg, "无法连接服务器，请先运行 npm start", "error");
+        } finally {
+          loginBtn.disabled = false;
+        }
+      });
+
+      loginPassword.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") loginBtn.click();
+      });
+
+      document.getElementById("logoutBtn").addEventListener("click", showLogin);
+
+      gameForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const payload = {
+          id: editId.value || GamesData.generateId(),
+          subject: document.getElementById("subject").value,
+          emoji: document.getElementById("emoji").value.trim() || "🎮",
+          title: document.getElementById("title").value.trim(),
+          url: document.getElementById("url").value.trim(),
+          badge: document.getElementById("badge").value.trim() || "🌐 需联网",
+          description: document.getElementById("description").value.trim(),
+        };
+
+        if (!payload.title || !payload.url) {
+          showMsg(adminMsg, "请填写名称和链接", "error");
+          return;
+        }
+
+        const wasEdit = !!editId.value;
+
+        if (editId.value) {
+          const idx = games.findIndex(function (g) { return g.id === editId.value; });
+          if (idx >= 0) games[idx] = payload;
+        } else {
+          games.push(payload);
+        }
+
+        try {
+          await persistGames(wasEdit ? "已更新，所有用户可见" : "已添加，所有用户可见");
+          resetForm();
+        } catch (err) {
+          showMsg(adminMsg, err.message, "error");
+        }
+      });
+
+      cancelEditBtn.addEventListener("click", resetForm);
+
+      gameList.addEventListener("click", async function (e) {
+        const btn = e.target.closest("button");
+        if (!btn) return;
+        const action = btn.dataset.action;
+        const id = btn.dataset.id;
+        const index = parseInt(btn.dataset.index, 10);
+
+        if (action === "edit") {
+          startEdit(id);
+        } else if (action === "delete") {
+          if (!confirm("确定删除「" + (games.find(function (g) { return g.id === id; }) || {}).title + "」？")) return;
+          games = games.filter(function (g) { return g.id !== id; });
+          try {
+            await persistGames("已删除");
+          } catch (err) {
+            showMsg(adminMsg, err.message, "error");
+          }
+        } else if (action === "up" && index > 0) {
+          const tmp = games[index - 1];
+          games[index - 1] = games[index];
+          games[index] = tmp;
+          try {
+            await persistGames();
+          } catch (err) {
+            showMsg(adminMsg, err.message, "error");
+          }
+        } else if (action === "down" && index < games.length - 1) {
+          const tmp = games[index + 1];
+          games[index + 1] = games[index];
+          games[index] = tmp;
+          try {
+            await persistGames();
+          } catch (err) {
+            showMsg(adminMsg, err.message, "error");
+          }
+        }
+      });
+
+      document.getElementById("exportBtn").addEventListener("click", function () {
+        const blob = new Blob([JSON.stringify(games, null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "学习乐园链接备份_" + new Date().toISOString().slice(0, 10) + ".json";
+        a.click();
+        URL.revokeObjectURL(a.href);
+        showMsg(adminMsg, "已导出备份文件", "success");
+      });
+
+      document.getElementById("importFile").addEventListener("change", async function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async function () {
+          try {
+            const imported = JSON.parse(reader.result);
+            if (!Array.isArray(imported)) throw new Error("格式错误");
+            games = imported;
+            await persistGames("导入成功，共 " + games.length + " 个链接，所有用户可见");
+          } catch (err) {
+            showMsg(adminMsg, "导入失败：" + err.message, "error");
+          }
+        };
+        reader.readAsText(file);
+        e.target.value = "";
+      });
+
+      document.getElementById("resetBtn").addEventListener("click", async function () {
+        if (!confirm("确定恢复为默认链接？当前自定义内容将丢失。")) return;
+        try {
+          games = await GamesData.resetGames();
+          resetForm();
+          await refreshList();
+          showMsg(adminMsg, "已恢复默认链接", "success");
+        } catch (err) {
+          showMsg(adminMsg, err.message, "error");
+        }
+      });
+
+      document.getElementById("changePasswordBtn").addEventListener("click", async function () {
+        const pw = document.getElementById("newPassword").value;
+        if (pw.length < 4) {
+          showMsg(adminMsg, "密码至少 4 位", "error");
+          return;
+        }
+        try {
+          await GamesData.changePassword(pw);
+          GamesData.setStoredPassword(pw);
+          document.getElementById("newPassword").value = "";
+          showMsg(adminMsg, "密码已更新（保存在 config.json）", "success");
+        } catch (err) {
+          showMsg(adminMsg, err.message, "error");
+        }
+      });
+
+      if (isLoggedIn()) {
+        showAdmin();
+      }
+
+      loginPassword.focus();
+    })();
+  </script>
+</body>
+</html>

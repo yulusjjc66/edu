@@ -1,0 +1,13 @@
+{
+  "name": "little-learning-paradise",
+  "version": "1.0.0",
+  "description": "小小学习乐园 - 童趣学习导航页",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

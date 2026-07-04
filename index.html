@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>小小学习乐园 🌈</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sky-top: #87ceeb;
+      --sky-bottom: #b8e0f8;
+      --english: #4ecdc4;
+      --english-light: #e8faf8;
+      --chinese: #ff8c69;
+      --chinese-light: #fff0eb;
+      --math: #a78bfa;
+      --math-light: #f3eeff;
+      --text: #2d3748;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      --radius: 22px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 60%, #d4edda 100%);
+      overflow-x: hidden;
+    }
+
+    /* 背景装饰 */
+    .clouds, .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+    .cloud {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 50px;
+      animation: float 8s ease-in-out infinite;
+    }
+    .cloud::before, .cloud::after {
+      content: "";
+      position: absolute;
+      background: inherit;
+      border-radius: 50%;
+    }
+    .cloud-1 { width: 100px; height: 36px; top: 8%; left: 5%; animation-delay: 0s; }
+    .cloud-1::before { width: 44px; height: 44px; top: -22px; left: 12px; }
+    .cloud-1::after { width: 56px; height: 56px; top: -28px; left: 40px; }
+    .cloud-2 { width: 80px; height: 30px; top: 15%; right: 8%; animation-delay: -3s; }
+    .cloud-2::before { width: 36px; height: 36px; top: -18px; left: 8px; }
+    .cloud-2::after { width: 46px; height: 46px; top: -24px; left: 30px; }
+    .cloud-3 { width: 70px; height: 26px; top: 55%; left: 3%; animation-delay: -5s; opacity: 0.7; }
+    .cloud-3::before { width: 32px; height: 32px; top: -16px; left: 6px; }
+    .cloud-3::after { width: 40px; height: 40px; top: -20px; left: 26px; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .star {
+      position: absolute;
+      font-size: 1.2rem;
+      animation: twinkle 3s ease-in-out infinite;
+    }
+    .star:nth-child(1) { top: 12%; left: 25%; animation-delay: 0s; }
+    .star:nth-child(2) { top: 6%; right: 30%; animation-delay: 0.8s; }
+    .star:nth-child(3) { top: 22%; right: 15%; animation-delay: 1.5s; }
+    .star:nth-child(4) { top: 40%; left: 12%; animation-delay: 2s; }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.4; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 3rem;
+    }
+
+    /* 顶部工具栏 */
+    .top-bar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .star-counter {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      font-size: 1rem;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+    }
+
+    .sound-toggle {
+      width: 48px;
+      height: 48px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.85);
+      font-size: 1.4rem;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s;
+    }
+    .sound-toggle:hover { transform: scale(1.08); }
+    .sound-toggle.on { background: #fff9c4; }
+
+    /* 欢迎区 */
+    .hero {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .mascot {
+      font-size: 4.5rem;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+      animation: bounce 2s ease-in-out infinite;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .hero h1 {
+      font-family: "ZCOOL KuaiLe", cursive;
+      font-size: clamp(2rem, 6vw, 2.8rem);
+      color: #e74c3c;
+      text-shadow: 2px 2px 0 #fff, 3px 3px 0 rgba(0,0,0,0.08);
+      margin-bottom: 0.5rem;
+    }
+
+    .hero p {
+      font-size: clamp(1rem, 3vw, 1.2rem);
+      color: #4a5568;
+    }
+
+    /* 科目标签 */
+    .subject-tabs {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .tab-btn {
+      font-family: "ZCOOL KuaiLe", cursive;
+      font-size: clamp(1.1rem, 3.5vw, 1.35rem);
+      padding: 0.75rem 1.5rem;
+      min-height: 48px;
+      border: 3px solid transparent;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: var(--shadow);
+    }
+    .tab-btn:hover { transform: translateY(-3px); }
+    .tab-btn.english { background: var(--english-light); color: #0d9488; border-color: var(--english); }
+    .tab-btn.chinese { background: var(--chinese-light); color: #c05621; border-color: var(--chinese); }
+    .tab-btn.math { background: var(--math-light); color: #6d28d9; border-color: var(--math); }
+
+    /* 科目区块 */
+    .subject-section {
+      margin-bottom: 2.5rem;
+      scroll-margin-top: 1rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .section-icon { font-size: 2.2rem; }
+
+    .section-header h2 {
+      font-family: "ZCOOL KuaiLe", cursive;
+      font-size: clamp(1.5rem, 4vw, 1.9rem);
+    }
+
+    .section-header.english h2 { color: #0d9488; }
+    .section-header.chinese h2 { color: #c05621; }
+    .section-header.math h2 { color: #6d28d9; }
+
+    /* 卡片网格 */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .game-card {
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      border: 3px solid transparent;
+    }
+
+    .game-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.14);
+    }
+
+    .game-card.english { border-color: var(--english); }
+    .game-card.chinese { border-color: var(--chinese); }
+    .game-card.math { border-color: var(--math); }
+
+    .card-emoji {
+      font-size: 2.8rem;
+      margin-bottom: 0.75rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .card-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .game-card h3 {
+      font-family: "ZCOOL KuaiLe", cursive;
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-desc {
+      font-size: 0.95rem;
+      color: #64748b;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+
+    .card-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      margin-bottom: 0.75rem;
+    }
+
+    .play-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      min-height: 48px;
+      padding: 0.75rem 1.25rem;
+      border: none;
+      border-radius: 999px;
+      font-family: "ZCOOL KuaiLe", cursive;
+      font-size: 1.15rem;
+      color: #fff;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.2s, filter 0.2s;
+    }
+
+    .play-btn:hover { transform: scale(1.04); filter: brightness(1.08); }
+    .play-btn:active { transform: scale(0.98); }
+
+    .english .play-btn { background: linear-gradient(135deg, #4ecdc4, #2dd4bf); }
+    .chinese .play-btn { background: linear-gradient(135deg, #ff8c69, #f97316); }
+    .math .play-btn { background: linear-gradient(135deg, #a78bfa, #8b5cf6); }
+
+    /* 页脚 */
+    footer {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      font-size: 0.85rem;
+      color: #64748b;
+      line-height: 1.7;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: var(--radius);
+      margin-top: 1rem;
+    }
+
+    footer strong { color: #475569; }
+
+    .empty-hint {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 2rem;
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+
+    .empty-hint a { color: #3b82f6; }
+
+    .admin-link {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-top: 0.5rem;
+    }
+
+    .admin-link a { color: #64748b; text-decoration: none; }
+    .admin-link a:hover { color: #3b82f6; text-decoration: underline; }
+
+    @media (max-width: 640px) {
+      .container {
+        padding: 0.85rem 0.75rem 2rem;
+      }
+
+      .hero {
+        margin-bottom: 1rem;
+      }
+
+      .mascot {
+        font-size: 2.75rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .hero h1 {
+        font-size: 1.65rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .hero p {
+        font-size: 0.88rem;
+      }
+
+      .subject-tabs {
+        gap: 0.45rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .tab-btn {
+        font-size: 0.92rem;
+        padding: 0.45rem 0.85rem;
+        min-height: 40px;
+        border-width: 2px;
+      }
+
+      .subject-section {
+        margin-bottom: 1.5rem;
+      }
+
+      .section-header {
+        margin-bottom: 0.65rem;
+        gap: 0.4rem;
+      }
+
+      .section-icon {
+        font-size: 1.5rem;
+      }
+
+      .section-header h2 {
+        font-size: 1.25rem;
+      }
+
+      .card-grid {
+        grid-template-columns: 1fr;
+        gap: 0.55rem;
+      }
+
+      .game-card {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.65rem 0.75rem;
+        border-width: 2px;
+        border-radius: 14px;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      .game-card:hover {
+        transform: none;
+      }
+
+      .card-emoji {
+        font-size: 1.85rem;
+        margin-bottom: 0;
+        width: 2.25rem;
+        text-align: center;
+      }
+
+      .game-card h3 {
+        font-size: 0.95rem;
+        margin-bottom: 0.15rem;
+        line-height: 1.3;
+      }
+
+      .card-badge {
+        font-size: 0.62rem;
+        margin-bottom: 0;
+        line-height: 1.3;
+      }
+
+      .card-desc {
+        display: none;
+      }
+
+      .play-btn {
+        min-height: 40px;
+        min-width: 3.1rem;
+        padding: 0.45rem 0.55rem;
+        font-size: 0.82rem;
+        flex-shrink: 0;
+        border-radius: 12px;
+      }
+
+      footer {
+        padding: 1rem 0.75rem;
+        font-size: 0.78rem;
+        border-radius: 14px;
+      }
+
+      .star-counter {
+        font-size: 0.88rem;
+        padding: 0.3rem 0.65rem;
+      }
+
+      .sound-toggle {
+        width: 40px;
+        height: 40px;
+        font-size: 1.15rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="clouds" aria-hidden="true">
+    <div class="cloud cloud-1"></div>
+    <div class="cloud cloud-2"></div>
+    <div class="cloud cloud-3"></div>
+  </div>
+  <div class="stars" aria-hidden="true">
+    <span class="star">⭐</span>
+    <span class="star">✨</span>
+    <span class="star">🌟</span>
+    <span class="star">⭐</span>
+  </div>
+
+  <div class="container">
+    <div class="top-bar">
+      <div class="star-counter" title="每玩一次游戏加一颗星">
+        <span>⭐</span>
+        <span id="starCount">0</span>
+      </div>
+      <button class="sound-toggle" id="soundToggle" type="button" title="开关音效" aria-label="开关音效">🔇</button>
+    </div>
+
+    <header class="hero">
+      <div class="mascot" aria-hidden="true">🐻‍❄️🎓</div>
+      <h1>小小学习乐园</h1>
+      <p>点下面的卡片，去玩游戏吧！</p>
+    </header>
+
+    <nav class="subject-tabs" aria-label="科目导航">
+      <button class="tab-btn english" data-target="english">🌍 英语乐园</button>
+      <button class="tab-btn math" data-target="math">🔢 数学乐园</button>
+      <button class="tab-btn chinese" data-target="chinese">📖 语文乐园</button>
+    </nav>
+
+    <div id="subjectsContainer">
+      <p class="empty-hint" id="loadingHint">正在加载游戏列表…</p>
+    </div>
+
+    <footer>
+      <p><strong>给家长的话：</strong>本站为学习导航页，游戏内容由 Coze 平台提供，请陪同小朋友一起使用。</p>
+      <p>小小学习乐园 2026</p>
+      <p class="admin-link"><a href="admin.html">管理后台</a></p>
+    </footer>
+  </div>
+
+  <script src="games-data.js"></script>
+  <script>
+    (function () {
+      const STAR_KEY = "littleLearnerStars";
+      const SOUND_KEY = "littleLearnerSound";
+
+      const starCountEl = document.getElementById("starCount");
+      const soundToggle = document.getElementById("soundToggle");
+      let soundOn = localStorage.getItem(SOUND_KEY) === "true";
+      let audioCtx = null;
+
+      function getStars() {
+        return parseInt(localStorage.getItem(STAR_KEY) || "0", 10);
+      }
+
+      function setStars(n) {
+        localStorage.setItem(STAR_KEY, String(n));
+        starCountEl.textContent = n;
+      }
+
+      function updateSoundUI() {
+        soundToggle.textContent = soundOn ? "🔊" : "🔇";
+        soundToggle.classList.toggle("on", soundOn);
+        soundToggle.setAttribute("aria-label", soundOn ? "关闭音效" : "开启音效");
+      }
+
+      function playDing() {
+        if (!soundOn) return;
+        try {
+          if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.frequency.value = 880;
+          osc.type = "sine";
+          gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
+          osc.start(audioCtx.currentTime);
+          osc.stop(audioCtx.currentTime + 0.25);
+        } catch (_) { /* 静默失败 */ }
+      }
+
+      function bindInteractions() {
+        document.querySelectorAll(".play-btn").forEach(function (link) {
+          link.addEventListener("click", function () {
+            setStars(getStars() + 1);
+            playDing();
+          });
+        });
+      }
+
+      async function renderPage() {
+        const container = document.getElementById("subjectsContainer");
+        try {
+          const games = await GamesData.loadGames();
+          GamesData.renderSubjects(games, "subjectsContainer");
+          bindInteractions();
+        } catch (_) {
+          container.innerHTML = '<p class="empty-hint">加载失败，请确认已运行 <code>npm start</code> 后访问</p>';
+        }
+      }
+
+      starCountEl.textContent = getStars();
+      updateSoundUI();
+      renderPage();
+
+      soundToggle.addEventListener("click", function () {
+        soundOn = !soundOn;
+        localStorage.setItem(SOUND_KEY, String(soundOn));
+        updateSoundUI();
+        if (soundOn) playDing();
+      });
+
+      document.querySelectorAll(".tab-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const target = document.getElementById(btn.dataset.target);
+          if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+          playDing();
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
