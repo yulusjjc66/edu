@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#87CEEB">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>口算大闯关</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{
+    height:100vh;height:100dvh;overflow:hidden;touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;-webkit-user-select:none;
+    font-family:'Segoe UI','Comic Sans MS','Chalkboard SE','Arial Rounded MT Bold',sans-serif;
+    background:linear-gradient(180deg,#87CEEB 0%,#F8C8DC 100%);color:#2D3436
+}
+button{font-family:inherit;cursor:pointer;border:none;outline:none;background:none;touch-action:manipulation}
+.screen{
+    position:fixed;inset:0;width:100%;height:100vh;height:100dvh;
+    display:flex;flex-direction:column;
+    opacity:0;visibility:hidden;transition:opacity .35s,visibility .35s;z-index:1;overflow:hidden
+}
+.screen.active{opacity:1;visibility:visible;z-index:10}
+
+/* 天空背景 */
+.sky-bg{position:absolute;inset:0;background:linear-gradient(180deg,#87CEEB 0%,#B8E6F0 30%,#E8D5F5 60%,#F8C8DC 100%);z-index:0;overflow:hidden}
+.cloud{position:absolute;background:rgba(255,255,255,.7);border-radius:50px;-webkit-animation:cloudFloat linear infinite;animation:cloudFloat linear infinite}
+.cloud::before,.cloud::after{content:'';position:absolute;background:inherit;border-radius:50%}
+.cloud-1{width:120px;height:40px;top:8%;-webkit-animation-duration:25s;animation-duration:25s}
+.cloud-1::before{width:50px;height:50px;top:-25px;left:20px}
+.cloud-1::after{width:35px;height:35px;top:-18px;left:55px}
+.cloud-2{width:90px;height:30px;top:20%;-webkit-animation-duration:30s;animation-duration:30s;-webkit-animation-delay:-8s;animation-delay:-8s}
+.cloud-2::before{width:40px;height:40px;top:-20px;left:15px}
+.cloud-2::after{width:28px;height:28px;top:-14px;left:42px}
+.cloud-3{width:150px;height:45px;top:5%;-webkit-animation-duration:35s;animation-duration:35s;-webkit-animation-delay:-15s;animation-delay:-15s}
+.cloud-3::before{width:60px;height:60px;top:-30px;left:25px}
+.cloud-3::after{width:40px;height:40px;top:-20px;left:70px}
+@-webkit-keyframes cloudFloat{0%{-webkit-transform:translateX(-200px);transform:translateX(-200px)}100%{-webkit-transform:translateX(calc(100vw + 200px));transform:translateX(calc(100vw + 200px))}}
+@keyframes cloudFloat{0%{-webkit-transform:translateX(-200px);transform:translateX(-200px)}100%{-webkit-transform:translateX(calc(100vw + 200px));transform:translateX(calc(100vw + 200px))}}
+
+/* 开始页 */
+.start-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:20px;gap:20px}
+.logo-area{text-align:center;-webkit-animation:fadeInDown .8s ease;animation:fadeInDown .8s ease}
+.logo-balloons{display:flex;justify-content:center;gap:12px;margin-bottom:16px}
+.logo-balloon{width:60px;height:72px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;box-shadow:inset -5px -5px 15px rgba(0,0,0,.15),0 4px 12px rgba(0,0,0,.1);-webkit-animation:balloonSway 3s ease-in-out infinite;animation:balloonSway 3s ease-in-out infinite}
+.b1{background:linear-gradient(135deg,#FF6B6B,#FF4757);-webkit-animation-delay:0s;animation-delay:0s}
+.b2{background:linear-gradient(135deg,#6BCB77,#4CAF50);-webkit-animation-delay:.5s;animation-delay:.5s}
+.b3{background:linear-gradient(135deg,#4A90D9,#7C4DFF);-webkit-animation-delay:1s;animation-delay:1s}
+.game-title{font-size:clamp(40px,10vw,64px);font-weight:900;text-shadow:0 3px 6px rgba(0,0,0,.1);letter-spacing:2px;line-height:1.2}
+.game-subtitle{font-size:clamp(16px,4vw,22px);color:#636E72;margin-top:8px;font-weight:600}
+.difficulty-section{width:100%;max-width:420px;-webkit-animation:fadeInUp .8s ease .2s both;animation:fadeInUp .8s ease .2s both}
+.section-label{text-align:center;font-size:18px;font-weight:700;color:#636E72;margin-bottom:12px}
+.difficulty-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.diff-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 8px;border-radius:20px;background:rgba(255,255,255,.9);box-shadow:0 4px 20px rgba(0,0,0,.1);transition:all .25s;border:3px solid transparent}
+.diff-btn:active{-webkit-transform:scale(.95);transform:scale(.95)}
+.diff-btn.active{border-color:#FF6B35;box-shadow:0 0 0 3px rgba(255,107,53,.3),0 4px 20px rgba(0,0,0,.1);background:#fff}
+.diff-icon{font-size:28px}.diff-name{font-size:16px;font-weight:700}.diff-desc{font-size:11px;color:#636E72;text-align:center;line-height:1.3}
+.start-btn{width:100%;max-width:420px;padding:18px 24px;border-radius:36px;background:linear-gradient(135deg,#FF6B35,#FF8F50);color:#fff;font-size:clamp(20px,5vw,26px);font-weight:800;letter-spacing:2px;box-shadow:0 6px 24px rgba(255,107,53,.4);transition:all .2s;-webkit-animation:fadeInUp .8s ease .4s both;animation:fadeInUp .8s ease .4s both}
+.start-btn:active{-webkit-transform:scale(.95);transform:scale(.95);box-shadow:0 3px 12px rgba(255,107,53,.3)}
+
+/* 游戏页顶部状态栏 */
+.status-bar{position:relative;z-index:5;flex-shrink:0;display:grid;grid-template-columns:1fr 1fr 1fr 1.5fr;align-items:center;gap:6px;padding:10px 12px;background:rgba(255,255,255,.85);border-bottom:1px solid rgba(0,0,0,.05)}
+.status-item{display:flex;align-items:center;gap:4px;font-size:clamp(13px,3vw,16px);font-weight:700;white-space:nowrap}
+.status-icon{font-size:clamp(14px,3.5vw,18px)}
+.sd{color:#FF6B35;justify-content:center}.cd{color:#FF6B9D;justify-content:center}.ld{color:#7C4DFF;justify-content:center}.lvd{color:#FF4757;justify-content:flex-end;font-size:clamp(12px,2.8vw,16px)}
+
+/* 固定算式 */
+.question-display{position:relative;z-index:4;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:14px 20px 10px;min-height:clamp(56px,13vw,80px)}
+.question-text{font-size:clamp(26px,7vw,46px);font-weight:900;color:#2D3436;background:rgba(255,255,255,.6);padding:6px 24px;border-radius:18px;box-shadow:0 2px 12px rgba(0,0,0,.06);letter-spacing:2px;text-align:center}
+
+/* 气球飘升区 */
+.bubble-area{position:relative;z-index:1;flex:1;overflow:hidden;min-height:0}
+
+/* 单个答案气球 */
+.balloon{
+    position:absolute;cursor:pointer;
+    width:clamp(72px,18vw,130px);height:clamp(88px,21vw,155px);
+    border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:clamp(22px,5.5vw,38px);font-weight:800;color:#fff;
+    text-shadow:0 2px 4px rgba(0,0,0,.2);
+    box-shadow:inset -8px -8px 20px rgba(0,0,0,.15),0 6px 20px rgba(0,0,0,.15);
+    z-index:2;transition:opacity .2s;
+    -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation
+}
+.balloon::after{
+    content:'';position:absolute;top:12%;left:20%;width:30%;height:25%;
+    background:radial-gradient(ellipse,rgba(255,255,255,.5) 0%,transparent 70%);border-radius:50%
+}
+.balloon-string{
+    position:absolute;bottom:-16px;left:50%;margin-left:-1px;
+    width:2px;height:22px;background:linear-gradient(to bottom,rgba(0,0,0,.2),transparent)
+}
+.balloon.correct{
+    -webkit-animation:balloonPop .4s ease forwards;animation:balloonPop .4s ease forwards
+}
+.balloon.wrong{
+    opacity:.3;-webkit-animation:wrongShake .4s ease;animation:wrongShake .4s ease
+}
+.balloon.disabled{pointer-events:none;opacity:.4}
+.balloon.missed{opacity:0!important}
+
+@-webkit-keyframes balloonPop{
+    0%{-webkit-transform:scale(1);transform:scale(1);opacity:1}
+    50%{-webkit-transform:scale(1.25);transform:scale(1.25);opacity:.8}
+    100%{-webkit-transform:scale(0);transform:scale(0);opacity:0}
+}
+@keyframes balloonPop{
+    0%{-webkit-transform:scale(1);transform:scale(1);opacity:1}
+    50%{-webkit-transform:scale(1.25);transform:scale(1.25);opacity:.8}
+    100%{-webkit-transform:scale(0);transform:scale(0);opacity:0}
+}
+@-webkit-keyframes wrongShake{0%,100%{-webkit-transform:translateX(0);transform:translateX(0)}20%{-webkit-transform:translateX(-6px);transform:translateX(-6px)}40%{-webkit-transform:translateX(6px);transform:translateX(6px)}60%{-webkit-transform:translateX(-4px);transform:translateX(-4px)}80%{-webkit-transform:translateX(4px);transform:translateX(4px)}}
+@keyframes wrongShake{0%,100%{-webkit-transform:translateX(0);transform:translateX(0)}20%{-webkit-transform:translateX(-6px);transform:translateX(-6px)}40%{-webkit-transform:translateX(6px);transform:translateX(6px)}60%{-webkit-transform:translateX(-4px);transform:translateX(-4px)}80%{-webkit-transform:translateX(4px);transform:translateX(4px)}}
+
+@-webkit-keyframes fadeInDown{from{opacity:0;-webkit-transform:translateY(-30px);transform:translateY(-30px)}to{opacity:1;-webkit-transform:translateY(0);transform:translateY(0)}}
+@keyframes fadeInDown{from{opacity:0;-webkit-transform:translateY(-30px);transform:translateY(-30px)}to{opacity:1;-webkit-transform:translateY(0);transform:translateY(0)}}
+@-webkit-keyframes fadeInUp{from{opacity:0;-webkit-transform:translateY(30px);transform:translateY(30px)}to{opacity:1;-webkit-transform:translateY(0);transform:translateY(0)}}
+@keyframes fadeInUp{from{opacity:0;-webkit-transform:translateY(30px);transform:translateY(30px)}to{opacity:1;-webkit-transform:translateY(0);transform:translateY(0)}}
+@-webkit-keyframes balloonSway{0%,100%{-webkit-transform:translateY(0) rotate(-2deg);transform:translateY(0) rotate(-2deg)}50%{-webkit-transform:translateY(-6px) rotate(2deg);transform:translateY(-6px) rotate(2deg)}}
+@keyframes balloonSway{0%,100%{-webkit-transform:translateY(0) rotate(-2deg);transform:translateY(0) rotate(-2deg)}50%{-webkit-transform:translateY(-6px) rotate(2deg);transform:translateY(-6px) rotate(2deg)}}
+
+/* 加分飞字 */
+.score-fly{position:absolute;z-index:100;font-size:24px;font-weight:900;color:#FF6B35;text-shadow:0 2px 8px rgba(255,107,53,.3);pointer-events:none;-webkit-animation:flyUp .8s ease forwards;animation:flyUp .8s ease forwards}
+@-webkit-keyframes flyUp{0%{opacity:1;-webkit-transform:translateY(0) scale(.5);transform:translateY(0) scale(.5)}100%{opacity:0;-webkit-transform:translateY(-80px) scale(1.2);transform:translateY(-80px) scale(1.2)}}
+@keyframes flyUp{0%{opacity:1;-webkit-transform:translateY(0) scale(.5);transform:translateY(0) scale(.5)}100%{opacity:0;-webkit-transform:translateY(-80px) scale(1.2);transform:translateY(-80px) scale(1.2)}}
+
+/* 结算页 */
+.end-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:20px;gap:20px;-webkit-animation:fadeInUp .6s ease;animation:fadeInUp .6s ease}
+.result-header{text-align:center}
+.result-title{font-size:clamp(32px,8vw,48px);font-weight:900;margin-bottom:12px}
+.stars-container{display:flex;justify-content:center;gap:8px}
+.star{font-size:clamp(40px,10vw,60px);color:#ddd;transition:all .3s}
+.star.active{color:#FFD93D;text-shadow:0 0 20px rgba(255,217,61,.5);-webkit-animation:starPop .4s ease;animation:starPop .4s ease}
+@-webkit-keyframes starPop{0%{-webkit-transform:scale(.5);transform:scale(.5)}50%{-webkit-transform:scale(1.3);transform:scale(1.3)}100%{-webkit-transform:scale(1);transform:scale(1)}}
+@keyframes starPop{0%{-webkit-transform:scale(.5);transform:scale(.5)}50%{-webkit-transform:scale(1.3);transform:scale(1.3)}100%{-webkit-transform:scale(1);transform:scale(1)}}
+.score-card{width:100%;max-width:400px;background:rgba(255,255,255,.9);border-radius:28px;padding:24px 20px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.final-score-area{display:flex;flex-direction:column;align-items:center;padding-bottom:16px;margin-bottom:16px;border-bottom:2px dashed rgba(0,0,0,.08)}
+.final-score-label{font-size:14px;font-weight:600;color:#636E72;letter-spacing:2px}
+.final-score{font-size:clamp(48px,12vw,72px);font-weight:900;color:#FF6B35;line-height:1.1}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.stat-item{display:flex;flex-direction:column;align-items:center;gap:2px}
+.stat-value{font-size:clamp(20px,5vw,28px);font-weight:800}.stat-label{font-size:12px;color:#636E72;font-weight:600}
+.end-actions{display:flex;gap:12px;width:100%;max-width:400px}
+.replay-btn,.home-btn{flex:1;padding:16px 20px;border-radius:36px;font-size:clamp(16px,4vw,20px);font-weight:700;transition:all .2s}
+.replay-btn{background:linear-gradient(135deg,#FF6B35,#FF8F50);color:#fff;box-shadow:0 4px 16px rgba(255,107,53,.35)}
+.home-btn{background:#fff;color:#2D3436;box-shadow:0 4px 20px rgba(0,0,0,.1);border:2px solid #eee}
+.replay-btn:active,.home-btn:active{-webkit-transform:scale(.95);transform:scale(.95)}
+
+/* 音乐开关 */
+.music-toggle{position:fixed;top:12px;right:12px;z-index:50;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 2px 8px rgba(0,0,0,.1);transition:all .2s}
+.game-music-toggle{top:auto;bottom:80px;right:12px}
+.music-toggle:active{-webkit-transform:scale(.9);transform:scale(.9)}
+
+/* 响应式 */
+@media(min-width:768px){
+    .status-bar{padding:14px 24px;max-width:700px;margin:0 auto;border-radius:0 0 20px 20px}
+    .question-display{max-width:700px;margin:0 auto;width:100%}
+    .bubble-area{max-width:700px;margin:0 auto;width:100%}
+    .game-music-toggle{bottom:100px;right:calc(50% - 350px + 12px)}
+    .start-content{gap:28px}.diff-btn{padding:18px 12px}.diff-icon{font-size:32px}.diff-name{font-size:18px}
+}
+@media(min-width:1024px){
+    .status-bar,.question-display,.bubble-area{max-width:800px}
+    .game-music-toggle{right:calc(50% - 400px + 12px)}
+}
+@media(max-width:380px){
+    .status-bar{padding:8px 8px;gap:4px}
+    .diff-btn{padding:10px 6px}.diff-icon{font-size:22px}.diff-name{font-size:14px}.diff-desc{font-size:10px}
+}
+@supports(padding:env(safe-area-inset-bottom)){
+    .bubble-area{padding-bottom:env(safe-area-inset-bottom)}
+}
+</style>
+</head>
+<body>
+
+<!-- 开始页 -->
+<div id="start-screen" class="screen active">
+    <div class="sky-bg">
+        <div class="cloud cloud-1"></div>
+        <div class="cloud cloud-2"></div>
+        <div class="cloud cloud-3"></div>
+    </div>
+    <div class="start-content">
+        <div class="logo-area">
+            <div class="logo-balloons">
+                <span class="logo-balloon b1">+</span>
+                <span class="logo-balloon b2">−</span>
+                <span class="logo-balloon b3">=</span>
+            </div>
+            <h1 class="game-title">口算大闯关</h1>
+            <p class="game-subtitle">戳中正确答案的气球！</p>
+        </div>
+        <div class="difficulty-section">
+            <h2 class="section-label">选择难度</h2>
+            <div class="difficulty-buttons">
+                <button class="diff-btn diff-easy" data-diff="easy" onclick="selectDifficulty('easy')">
+                    <span class="diff-icon">😊</span>
+                    <span class="diff-name">简单</span>
+                    <span class="diff-desc">20以内进退位</span>
+                </button>
+                <button class="diff-btn diff-normal active" data-diff="normal" onclick="selectDifficulty('normal')">
+                    <span class="diff-icon">🤔</span>
+                    <span class="diff-name">普通</span>
+                    <span class="diff-desc">混合练习</span>
+                </button>
+                <button class="diff-btn diff-hard" data-diff="hard" onclick="selectDifficulty('hard')">
+                    <span class="diff-icon">🔥</span>
+                    <span class="diff-name">挑战</span>
+                    <span class="diff-desc">100以内非进退位</span>
+                </button>
+            </div>
+        </div>
+        <button class="start-btn" onclick="startGame()">开始闯关</button>
+    </div>
+    <button class="music-toggle" onclick="toggleMusic()" aria-label="音乐开关"><span id="musicIconStart">🔊</span></button>
+</div>
+
+<!-- 游戏页 -->
+<div id="game-screen" class="screen">
+    <div class="sky-bg">
+        <div class="cloud cloud-1"></div>
+        <div class="cloud cloud-2"></div>
+        <div class="cloud cloud-3"></div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-item sd"><span class="status-icon">⭐</span><span id="scoreDisplay">0</span></div>
+        <div class="status-item cd" id="comboDisplay"><span class="status-icon">🔥</span><span id="comboCount">0</span></div>
+        <div class="status-item ld"><span class="status-icon">📈</span><span id="levelDisplay">Lv.1</span></div>
+        <div class="status-item lvd"><span id="livesDisplay">❤️❤️❤️❤️❤️</span></div>
+    </div>
+
+    <div class="question-display">
+        <div class="question-text" id="questionText">8 + 5 = ?</div>
+    </div>
+
+    <!-- 4个气球在此区域飘升 -->
+    <div class="bubble-area" id="bubbleArea"></div>
+
+    <button class="music-toggle game-music-toggle" onclick="toggleMusic()" aria-label="音乐开关"><span id="musicIconGame">🔊</span></button>
+</div>
+
+<!-- 结算页 -->
+<div id="end-screen" class="screen">
+    <div class="sky-bg">
+        <div class="cloud cloud-1"></div>
+        <div class="cloud cloud-2"></div>
+        <div class="cloud cloud-3"></div>
+    </div>
+    <div class="end-content">
+        <div class="result-header">
+            <h2 class="result-title">闯关结束！</h2>
+            <div class="stars-container" id="starsContainer">
+                <span class="star" data-star="1">☆</span>
+                <span class="star" data-star="2">☆</span>
+                <span class="star" data-star="3">☆</span>
+            </div>
+        </div>
+        <div class="score-card">
+            <div class="final-score-area">
+                <span class="final-score-label">最终得分</span>
+                <span class="final-score" id="finalScore">0</span>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item"><span class="stat-value" id="correctCount">0</span><span class="stat-label">答对</span></div>
+                <div class="stat-item"><span class="stat-value" id="wrongCount">0</span><span class="stat-label">答错</span></div>
+                <div class="stat-item"><span class="stat-value" id="accuracyRate">0%</span><span class="stat-label">正确率</span></div>
+                <div class="stat-item"><span class="stat-value" id="maxCombo">0</span><span class="stat-label">最高连击</span></div>
+                <div class="stat-item"><span class="stat-value" id="finalLevel">1</span><span class="stat-label">达到关卡</span></div>
+                <div class="stat-item"><span class="stat-value" id="totalQuestions">0</span><span class="stat-label">总题数</span></div>
+            </div>
+        </div>
+        <div class="end-actions">
+            <button class="replay-btn" onclick="replayGame()">再来一次</button>
+            <button class="home-btn" onclick="goHome()">返回首页</button>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ============================================================
+   口算大闯关 - 答案气球版
+   4个答案各在一个气球上从底部上飘，点击气球作答
+   ============================================================ */
+
+// ====== 音频引擎 ======
+var AudioEngine = (function() {
+    var ctx=null,bgmGain=null,bgmPlaying=false,bgmTimeout=null,_muted=false;
+    function getCtx(){
+        if(!ctx)ctx=new(window.AudioContext||window.webkitAudioContext)();
+        if(ctx.state==='suspended')ctx.resume();
+        return ctx;
+    }
+    function freq(n){
+        var ns={C3:130.81,D3:146.83,E3:164.81,F3:174.61,G3:196,A3:220,B3:246.94,C4:261.63,D4:293.66,E4:329.63,F4:349.23,G4:392,A4:440,B4:493.88,C5:523.25,D5:587.33,E5:659.25,G5:783.99,A5:880};
+        return ns[n]||440;
+    }
+    var melody=['C4','D4','E4','G4','A4','C5','B4','G4','E4','G4','A4','E4','D4','C4','D4','G3','A3','C4','E4','D4','C4','G3','A3','C4','G4','E4','D4','C4','G3','A3','C4','D4'];
+    var nd=0.2;
+    function playBGM(){
+        if(_muted)return;stopBGM();bgmPlaying=true;
+        var ac=getCtx();bgmGain=ac.createGain();bgmGain.gain.value=0.08;bgmGain.connect(ac.destination);
+        var idx=0;
+        function next(){
+            if(!bgmPlaying||_muted)return;
+            if(idx>=melody.length)idx=0;
+            var o=ac.createOscillator();o.type='triangle';o.frequency.value=freq(melody[idx]);
+            var ng=ac.createGain();ng.gain.setValueAtTime(0.08,ac.currentTime);ng.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+nd*0.9);
+            o.connect(ng);ng.connect(bgmGain);o.start(ac.currentTime);o.stop(ac.currentTime+nd);idx++;
+            bgmTimeout=setTimeout(next,nd*850);
+        }
+        next();
+    }
+    function stopBGM(){bgmPlaying=false;if(bgmTimeout){clearTimeout(bgmTimeout);bgmTimeout=null}}
+    function sfx(freqs,type,vol,dur,delay){
+        if(_muted)return;var ac=getCtx(),g=ac.createGain();g.gain.value=vol;g.connect(ac.destination);
+        freqs.forEach(function(f,i){var o=ac.createOscillator();o.type=type;o.frequency.value=f;o.connect(g);o.start(ac.currentTime+i*delay);o.stop(ac.currentTime+i*delay+dur)});
+    }
+    return {
+        get muted(){return _muted},set muted(v){_muted=v;if(v)stopBGM();else playBGM();updateMusicIcons()},
+        toggle:function(){this.muted=!this.muted},
+        startBGM:function(){if(!_muted)playBGM()},stopBGM:stopBGM,
+        playCorrect:function(){sfx([523.25,659.25],'sine',0.15,0.15,0.08)},
+        playWrong:function(){sfx([196,130.81],'sawtooth',0.15,0.2,0.1)},
+        playMiss:function(){if(_muted)return;var ac=getCtx(),g=ac.createGain();g.gain.value=0.1;g.connect(ac.destination);var o=ac.createOscillator();o.type='square';o.frequency.value=100;o.connect(g);o.start(ac.currentTime);o.stop(ac.currentTime+0.12)},
+        playLevelUp:function(){sfx([261.63,329.63,392,523.25],'sine',0.12,0.2,0.1)},
+        init:function(){getCtx()}
+    };
+})();
+function toggleMusic(){AudioEngine.toggle()}
+function updateMusicIcons(){
+    var ic=AudioEngine.muted?'🔇':'🔊';
+    var si=document.getElementById('musicIconStart'),gi=document.getElementById('musicIconGame');
+    if(si)si.textContent=ic;if(gi)gi.textContent=ic;
+}
+
+// ====== 题目生成器（含不重复检测） ======
+var QuestionGenerator = {
+    lastQuestions:[],
+
+    generate:function(diff){
+        var q;
+        for(var att=0;att<20;att++){
+            if(diff==='easy')q=this._genEasy();
+            else if(diff==='hard')q=this._genHard();
+            else q=Math.random()<0.5?this._genEasy():this._genHard();
+            // 检查与最近5题是否重复
+            if(!this._isRecent(q.question))break;
+        }
+        this.lastQuestions.push(q.question);
+        if(this.lastQuestions.length>5)this.lastQuestions.shift();
+        return q;
+    },
+
+    _isRecent:function(q){
+        for(var i=0;i<this.lastQuestions.length;i++){
+            if(this.lastQuestions[i]===q)return true;
+        }
+        return false;
+    },
+
+    _genEasy:function(){
+        var isAdd=Math.random()<0.5,a,b,ans;
+        if(isAdd){
+            var att=0;do{a=Math.floor(Math.random()*9)+2;b=Math.floor(Math.random()*9)+2;att++}while(((a%10)+(b%10)<10||a+b>20)&&att<50);
+            if(att>=50){a=8;b=5}ans=a+b;
+            return{question:a+' + '+b+' = ?',answer:ans,options:this._genOpts(ans)};
+        }else{
+            var att=0;do{a=Math.floor(Math.random()*9)+11;b=Math.floor(Math.random()*(a-10))+2;att++}while((a%10)>=(b%10)&&att<50);
+            if(att>=50){a=13;b=5}ans=a-b;
+            return{question:a+' − '+b+' = ?',answer:ans,options:this._genOpts(ans)};
+        }
+    },
+    _genHard:function(){
+        var isAdd=Math.random()<0.5,a,b,ans;
+        if(isAdd){
+            var att=0;do{a=Math.floor(Math.random()*70)+10;b=Math.floor(Math.random()*70)+10;att++}while(((a%10)+(b%10)>=10||a+b>100||a+b<=20)&&att<50);
+            if(att>=50){a=23;b=15}ans=a+b;
+            return{question:a+' + '+b+' = ?',answer:ans,options:this._genOpts(ans)};
+        }else{
+            var att=0;do{a=Math.floor(Math.random()*60)+30;b=Math.floor(Math.random()*30)+1;att++}while(((a%10)<(b%10)||a-b<=20||a-b>100)&&att<50);
+            if(att>=50){a=56;b=23}ans=a-b;
+            return{question:a+' − '+b+' = ?',answer:ans,options:this._genOpts(ans)};
+        }
+    },
+    _genOpts:function(correct){
+        var o={};o[correct]=true;
+        var offs=[1,2,3,5,-1,-2,-3,-5,4,-4,7,-7,8,-8];
+        for(var i=0;i<offs.length&&Object.keys(o).length<4;i++){var v=correct+offs[i];if(v!==correct&&v>=0)o[v]=true}
+        var fill=0;while(Object.keys(o).length<4){if(!o[fill]&&fill>=0)o[fill]=true;fill++}
+        var arr=Object.keys(o).map(Number);
+        for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=arr[i];arr[i]=arr[j];arr[j]=t}
+        return arr;
+    }
+};
+
+// ====== 四气球多对象动画引擎 ======
+var BalloonManager = {
+    balloons:[],
+    rafId:null,
+    areaHeight:0,
+    duration:0,
+    startTime:0,
+    running:false,
+    missed:false,
+
+    // 创建4个答案气球
+    create:function(area, options, correct, duration, onMiss) {
+        this.destroy();
+        this.running=true;
+        this.missed=false;
+        this.areaHeight=area.offsetHeight;
+        this.duration=duration*1000;
+        this.startTime=Date.now();
+        this.balloons=[];
+
+        var colors=[
+            'linear-gradient(135deg,#FF6B6B,#EE5A24)',
+            'linear-gradient(135deg,#FFB347,#FF8F1C)',
+            'linear-gradient(135deg,#6BCB77,#4CAF50)',
+            'linear-gradient(135deg,#4A90D9,#2E86DE)',
+            'linear-gradient(135deg,#FF6B9D,#E056A0)',
+            'linear-gradient(135deg,#A66CFF,#7C4DFF)',
+            'linear-gradient(135deg,#00D2D3,#01A3A4)'
+        ];
+
+        // 4个气球均匀分布水平位置
+        var positions=[16,38,62,84];
+
+        for(var i=0;i<4;i++){
+            var bg=colors[Math.floor(Math.random()*colors.length)];
+            var pos=positions[i]+(Math.random()*6-3);
+
+            var el=document.createElement('div');
+            el.className='balloon';
+            el.style.background=bg;
+            el.style.left=pos+'%';
+            // 从底部进入视野 → 向上飘向算式
+            el.style.bottom='-180px';
+            el.textContent=options[i];
+            el.dataset.index=i;
+
+            var str=document.createElement('div');
+            str.className='balloon-string';
+            str.style.left='50%';
+            el.appendChild(str);
+
+            // 点击事件
+            var self=this;
+            el.addEventListener('click',function(e){
+                var idx=parseInt(this.dataset.index);
+                self.onBalloonClick(idx, options[idx], correct, area);
+            });
+            el.addEventListener('touchend',function(e){
+                e.preventDefault();
+                var idx=parseInt(this.dataset.index);
+                self.onBalloonClick(idx, options[idx], correct, area);
+            });
+
+            area.appendChild(el);
+            this.balloons.push(el);
+        }
+
+        // 超时回调
+        var self=this;
+        this.rafId=requestAnimationFrame(function(t){self._tick(t);});
+        this._missCallback=function(){
+            if(!self.missed&&onMiss)onMiss();
+        };
+    },
+
+    onBalloonClick:function(idx, selected, correct, area) {
+        if(this.missed)return;
+        this.missed=true;
+        var game=Game;
+
+        if(selected===correct){
+            // 答对：正确气球弹出动画，其它消失
+            this.balloons[idx].classList.add('correct');
+            for(var i=0;i<this.balloons.length;i++){
+                if(i!==idx)this.balloons[i].classList.add('missed');
+                this.balloons[i].classList.add('disabled');
+            }
+            game.onCorrect();
+            setTimeout(function(){game.nextQ()},600);
+        }else{
+            // 答错：当前气球抖动变灰，高亮正确气球
+            this.balloons[idx].classList.add('wrong');
+            for(var i=0;i<this.balloons.length;i++){
+                this.balloons[i].classList.add('disabled');
+                if(i!==idx && Game.curQ && Game.curQ.options[i]===correct){
+                    this.balloons[i].classList.add('correct');
+                }
+            }
+            game.onWrong();
+            setTimeout(function(){game.nextQ()},1000);
+        }
+    },
+
+    _tick:function(now) {
+        if(!this.running)return;
+        var elapsed=Date.now()-this.startTime;
+        var progress=Math.min(elapsed/this.duration,1);
+        var eased=1-Math.pow(1-progress,1.4);
+        // 从底部(-180px)向上飘到顶部(areaHeight+200px)，朝向算式方向
+        var startY=-180;
+        var endY=this.areaHeight+200;
+        var y=startY+(endY-startY)*eased;
+
+        for(var i=0;i<this.balloons.length;i++){
+            if(this.balloons[i])this.balloons[i].style.bottom=y+'px';
+        }
+
+        if(progress<1&&!this.missed){
+            var self=this;
+            this.rafId=requestAnimationFrame(function(t){self._tick(t);});
+        }else if(progress>=1&&!this.missed){
+            // 全部飘出屏幕 = 错过
+            this.missed=true;
+            if(this._missCallback)this._missCallback();
+        }
+    },
+
+    destroy:function() {
+        this.running=false;
+        if(this.rafId){cancelAnimationFrame(this.rafId);this.rafId=null}
+        for(var i=0;i<this.balloons.length;i++){
+            if(this.balloons[i]){this.balloons[i].remove();this.balloons[i]=null}
+        }
+        this.balloons=[];
+        this._missCallback=null;
+    }
+};
+
+// ====== 游戏状态 ======
+var Game = {
+    score:0,lives:5,maxLives:5,combo:0,maxCombo:0,level:1,maxLevel:10,
+    qCount:0,correctCount:0,wrongCount:0,difficulty:'normal',
+    status:'start',isAnswering:false,
+    curQ:null,els:{},
+
+    get speed(){
+        var spds=[12,11,10,9,8,7,6,5,4,3];
+        return spds[Math.min(this.level-1,spds.length-1)];
+    },
+
+    initDOM:function(){
+        this.els={
+            startScreen:document.getElementById('start-screen'),
+            gameScreen:document.getElementById('game-screen'),
+            endScreen:document.getElementById('end-screen'),
+            bubbleArea:document.getElementById('bubbleArea'),
+            questionText:document.getElementById('questionText'),
+            scoreDisplay:document.getElementById('scoreDisplay'),
+            comboCount:document.getElementById('comboCount'),
+            comboDisplay:document.getElementById('comboDisplay'),
+            levelDisplay:document.getElementById('levelDisplay'),
+            livesDisplay:document.getElementById('livesDisplay'),
+            finalScore:document.getElementById('finalScore'),
+            correctCount:document.getElementById('correctCount'),
+            wrongCount:document.getElementById('wrongCount'),
+            accuracyRate:document.getElementById('accuracyRate'),
+            maxCombo:document.getElementById('maxCombo'),
+            finalLevel:document.getElementById('finalLevel'),
+            totalQuestions:document.getElementById('totalQuestions'),
+            starsContainer:document.getElementById('starsContainer')
+        };
+    },
+
+    showScreen:function(id){
+        document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
+        document.getElementById(id).classList.add('active');
+    },
+
+    init:function(){this.initDOM();AudioEngine.init()},
+
+    start:function(){
+        this.score=0;this.lives=this.maxLives;this.combo=0;this.maxCombo=0;
+        this.level=1;this.qCount=0;this.correctCount=0;this.wrongCount=0;
+        this.isAnswering=false;this.curQ=null;this.status='playing';
+        QuestionGenerator.lastQuestions=[];
+        this.showScreen('game-screen');
+        this.updateUI();
+        AudioEngine.startBGM();
+        this.nextQ();
+    },
+
+    nextQ:function(){
+        if(this.status!=='playing')return;
+        this.isAnswering=false;
+        BalloonManager.destroy();
+        this.curQ=QuestionGenerator.generate(this.difficulty);
+
+        // 更新固定算式
+        this.els.questionText.textContent=this.curQ.question;
+
+        // 创建4个答案气球
+        var self=this;
+        BalloonManager.create(
+            this.els.bubbleArea,
+            this.curQ.options,
+            this.curQ.answer,
+            this.speed,
+            function(){self.onMiss()}
+        );
+
+        this.updateUI();
+    },
+
+    onCorrect:function(){
+        this.combo++;
+        if(this.combo>this.maxCombo)this.maxCombo=this.combo;
+        this.correctCount++;this.qCount++;
+        var bonus=Math.floor(this.combo/3)*5;
+        var pts=10+bonus;
+        this.score+=pts;
+        AudioEngine.playCorrect();
+        this.showScoreFly(pts);
+        var newLv=Math.floor(this.qCount/5)+1;
+        if(newLv>this.level&&newLv<=this.maxLevel){
+            this.level=newLv;
+            AudioEngine.playLevelUp();
+            this.showLevelUp();
+        }
+        this.updateUI();
+    },
+
+    onWrong:function(){
+        this.combo=0;this.wrongCount++;this.qCount++;this.lives--;
+        AudioEngine.playWrong();
+        this.updateUI();
+        if(this.lives<=0){var self=this;setTimeout(function(){self.gameOver()},800)}
+    },
+
+    onMiss:function(){
+        if(this.isAnswering)return;
+        this.isAnswering=true;
+        this.combo=0;this.wrongCount++;this.qCount++;this.lives--;
+        AudioEngine.playMiss();
+
+        // 高亮正确答案
+        var balloons=BalloonManager.balloons;
+        for(var i=0;i<balloons.length;i++){
+            balloons[i].classList.add('disabled');
+            balloons[i].classList.add('missed');
+        }
+        for(var i=0;i<balloons.length;i++){
+            if(this.curQ&&this.curQ.options[i]===this.curQ.answer){
+                balloons[i].classList.remove('missed');
+                balloons[i].classList.add('correct');
+            }
+        }
+
+        this.updateUI();
+        if(this.lives<=0){var self=this;setTimeout(function(){self.gameOver()},800)}
+        else{var self=this;setTimeout(function(){self.nextQ()},1000)}
+    },
+
+    gameOver:function(){
+        this.status='ended';
+        AudioEngine.stopBGM();
+        BalloonManager.destroy();
+        var total=this.correctCount+this.wrongCount;
+        var acc=total>0?Math.round(this.correctCount/total*100):0;
+        this.els.finalScore.textContent=this.score;
+        this.els.correctCount.textContent=this.correctCount;
+        this.els.wrongCount.textContent=this.wrongCount;
+        this.els.accuracyRate.textContent=acc+'%';
+        this.els.maxCombo.textContent=this.maxCombo;
+        this.els.finalLevel.textContent=this.level;
+        this.els.totalQuestions.textContent=total;
+        var stars=acc>=90?3:acc>=70?2:acc>=40?1:0;
+        var ss=this.els.starsContainer.querySelectorAll('.star');
+        for(var i=0;i<ss.length;i++){
+            ss[i].classList.toggle('active',i<stars);
+            if(i<stars)ss[i].style.animationDelay=(i*0.2)+'s';
+        }
+        this.showScreen('end-screen');
+    },
+
+    showScoreFly:function(pts){
+        var el=document.createElement('div');
+        el.className='score-fly';
+        el.textContent='+'+pts;
+        el.style.left='50%';el.style.top='40%';el.style.transform='translateX(-50%)';
+        document.getElementById('game-screen').appendChild(el);
+        setTimeout(function(){el.remove()},800);
+    },
+
+    showLevelUp:function(){
+        var el=document.createElement('div');
+        el.className='score-fly';
+        el.textContent='⬆ Lv.'+this.level;
+        el.style.left='50%';el.style.top='35%';el.style.transform='translateX(-50%)';
+        el.style.color='#7C4DFF';el.style.fontSize='32px';
+        document.getElementById('game-screen').appendChild(el);
+        setTimeout(function(){el.remove()},1000);
+    },
+
+    updateUI:function(){
+        this.els.scoreDisplay.textContent=this.score;
+        this.els.comboCount.textContent=this.combo;
+        this.els.levelDisplay.textContent='Lv.'+this.level;
+        var hearts='';
+        for(var i=0;i<this.lives;i++)hearts+='❤️';
+        for(var i=this.lives;i<this.maxLives;i++)hearts+='🖤';
+        this.els.livesDisplay.textContent=hearts;
+        if(this.combo>=3){
+            this.els.comboDisplay.style.animation='none';
+            void this.els.comboDisplay.offsetHeight;
+            this.els.comboDisplay.style.animation='correctPulse 0.4s ease';
+        }
+    },
+
+    replay:function(){this.start()},
+    goHome:function(){this.status='start';AudioEngine.stopBGM();this.showScreen('start-screen')}
+};
+
+// ====== 全局函数 ======
+function selectDifficulty(diff){
+    Game.difficulty=diff;
+    document.querySelectorAll('.diff-btn').forEach(function(b){
+        b.classList.toggle('active',b.dataset.diff===diff);
+    });
+}
+function startGame(){Game.start()}
+function replayGame(){Game.replay()}
+function goHome(){Game.goHome()}
+
+// ====== 启动 ======
+document.addEventListener('DOMContentLoaded',function(){Game.init()});
+document.addEventListener('visibilitychange',function(){
+    if(!document.hidden&&Game.status==='playing'&&!AudioEngine.muted)AudioEngine.startBGM();
+});
+document.addEventListener('dblclick',function(e){e.preventDefault()});
+</script>
+</body>
+</html>

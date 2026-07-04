@@ -20,11 +20,11 @@
   {
     "id": "math-1",
     "subject": "math",
-    "emoji": "🎯",
-    "badge": "🌐 需联网",
-    "title": "数学闯关游戏",
-    "description": "数学闯关大挑战，答对题目一路通关，越闯越厉害！",
-    "url": "https://b4xytcw8zk.coze.site"
+    "emoji": "🎈",
+    "badge": "📦 本地可玩",
+    "title": "口算大闯关",
+    "description": "点击正确答案气球，简单/普通/挑战三种难度，越玩越熟练！",
+    "url": "/games-local/kousuan.html"
   },
   {
     "id": "cn-1",

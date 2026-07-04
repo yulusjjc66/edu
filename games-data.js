@@ -30,11 +30,11 @@
     {
       id: "math-1",
       subject: "math",
-      emoji: "🎯",
-      badge: "🌐 需联网",
-      title: "数学闯关游戏",
-      description: "数学闯关大挑战，答对题目一路通关，越闯越厉害！",
-      url: "https://b4xytcw8zk.coze.site",
+      emoji: "🎈",
+      badge: "📦 本地可玩",
+      title: "口算大闯关",
+      description: "点击正确答案气球，简单/普通/挑战三种难度，越玩越熟练！",
+      url: "/games-local/kousuan.html",
     },
     {
       id: "cn-1",
@@ -101,9 +101,13 @@
     return headers;
   }
 
+  function apiUrl(path) {
+    return path.replace(/^\//, "");
+  }
+
   async function loadGames() {
     try {
-      const res = await fetch("/api/games");
+      const res = await fetch(apiUrl("/api/games"));
       if (!res.ok) throw new Error("load failed");
       const games = await res.json();
       if (!Array.isArray(games) || games.length === 0) return cloneDefaults();
@@ -114,7 +118,7 @@
   }
 
   async function saveGames(games, password) {
-    const res = await fetch("/api/games", {
+    const res = await fetch(apiUrl("/api/games"), {
       method: "PUT",
       headers: apiHeaders(password),
       body: JSON.stringify(games),
@@ -125,7 +129,7 @@
   }
 
   async function authPassword(password) {
-    const res = await fetch("/api/auth", {
+    const res = await fetch(apiUrl("/api/auth"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ password: password }),
@@ -134,7 +138,7 @@
   }
 
   async function changePassword(newPassword, currentPassword) {
-    const res = await fetch("/api/password", {
+    const res = await fetch(apiUrl("/api/password"), {
       method: "PUT",
       headers: apiHeaders(currentPassword),
       body: JSON.stringify({ newPassword: newPassword }),
@@ -145,7 +149,7 @@
   }
 
   async function resetGames(password) {
-    const res = await fetch("/api/games/reset", {
+    const res = await fetch(apiUrl("/api/games/reset"), {
       method: "POST",
       headers: apiHeaders(password),
     });
