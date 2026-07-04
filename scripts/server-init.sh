@@ -2,11 +2,36 @@
 # 服务器首次初始化（在阿里云 Workbench 里执行一次）
 set -e
 
-echo ">>> 安装 Node.js 20..."
-if ! command -v node >/dev/null 2>&1; then
-  curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
-  yum install -y nodejs || apt-get install -y nodejs
-fi
+install_nodejs() {
+  if command -v node >/dev/null 2>&1; then
+    echo "    Node.js 已安装: $(node -v)"
+    return
+  fi
+
+  echo ">>> 安装 Node.js 20..."
+
+  if command -v apt-get >/dev/null 2>&1; then
+    apt-get update -y
+    apt-get install -y ca-certificates curl gnupg git
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+    apt-get install -y nodejs
+  elif command -v yum >/dev/null 2>&1; then
+    yum install -y ca-certificates curl git
+    curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
+    yum install -y nodejs
+  elif command -v dnf >/dev/null 2>&1; then
+    dnf install -y ca-certificates curl git
+    curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
+    dnf install -y nodejs
+  else
+    echo "错误：不支持的系统，请手动安装 Node.js 20"
+    exit 1
+  fi
+
+  echo "    Node.js $(node -v) / npm $(npm -v)"
+}
+
+install_nodejs
 
 echo ">>> 安装 pm2..."
 npm install -g pm2
